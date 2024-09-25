@@ -14,7 +14,7 @@ class NoteApp(QWidget):
 
     def initUI(self):
         self.setWindowTitle('Gestion des Notes des Étudiants')
-        self.setWindowIcon(QIcon('icons/app_icon.png'))  # Assurez-vous d'avoir une icône appropriée
+        self.setWindowIcon(QIcon('icons/app_icon.png')) 
 
         # Stylesheet global
         self.setStyleSheet("""
