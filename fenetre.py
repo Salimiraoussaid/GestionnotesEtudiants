@@ -1,5 +1,10 @@
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLineEdit, QTableWidget, QTableWidgetItem, QHBoxLayout, QMessageBox
+from PyQt6 import QtGui
+from PyQt6.QtWidgets import (
+    QWidget, QVBoxLayout, QPushButton, QLineEdit, QTableWidget,
+    QTableWidgetItem, QHBoxLayout, QMessageBox, QLabel, QHeaderView
+)
 from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QIcon, QFont
 
 class NoteApp(QWidget):
     def __init__(self, db, parent=None):
@@ -9,74 +14,123 @@ class NoteApp(QWidget):
 
     def initUI(self):
         self.setWindowTitle('Gestion des Notes des Étudiants')
+        self.setWindowIcon(QIcon('icons/app_icon.png'))  # Assurez-vous d'avoir une icône appropriée
 
-        # Stylesheet pour la fenêtre principale
+        # Stylesheet global
         self.setStyleSheet("""
             QWidget {
-                background-color: #f5f5f5;  /* Couleur de fond */
-                font-family: Arial, sans-serif;  /* Police de caractère */
+                background-color: #2E3440;  /* Couleur de fond sombre */
+                color: #D8DEE9;  /* Couleur du texte claire */
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            }
+            QLineEdit {
+                padding: 10px;
+                border: 2px solid #4C566A;
+                border-radius: 8px;
+                background-color: #3B4252;
+                color: #D8DEE9;
+            }
+            QPushButton {
+                background-color: #5E81AC;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 8px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #81A1C1;
+            }
+            QTableWidget {
+                background-color: #3B4252;
+                border: none;
+                gridline-color: #4C566A;
+                color: #D8DEE9;
+            }
+            QHeaderView::section {
+                background-color: #4C566A;
+                color: #ECEFF4;
+                padding: 4px;
+                font-size: 14px;
+                font-weight: bold;
+            }
+            QTableWidget::item:selected {
+                background-color: #81A1C1;
+                color: #2E3440;
             }
         """)
 
         # Layout principal
-        layout = QVBoxLayout()
+        main_layout = QVBoxLayout()
+        main_layout.setContentsMargins(20, 20, 20, 20)
+        main_layout.setSpacing(15)
+
+        # Titre
+        title = QLabel("Gestion des Notes des Étudiants")
+        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        title_font = QFont('Segoe UI', 16, QFont.Weight.Bold)
+        title.setFont(title_font)
+        title.setStyleSheet("color: #81A1C1;")
+        main_layout.addWidget(title)
 
         # Champs de saisie
+        form_layout = QHBoxLayout()
+        form_layout.setSpacing(10)
+
         self.nomInput = QLineEdit()
         self.nomInput.setPlaceholderText('Nom')
-        self.nomInput.setStyleSheet("QLineEdit { padding: 10px; border: 1px solid #ccc; border-radius: 5px; }")
+        self.nomInput.setFixedHeight(40)
+        form_layout.addWidget(self.nomInput)
 
         self.prenomInput = QLineEdit()
         self.prenomInput.setPlaceholderText('Prénom')
-        self.prenomInput.setStyleSheet("QLineEdit { padding: 10px; border: 1px solid #ccc; border-radius: 5px; }")
+        self.prenomInput.setFixedHeight(40)
+        form_layout.addWidget(self.prenomInput)
 
         self.noteInput = QLineEdit()
         self.noteInput.setPlaceholderText('Note')
-        self.noteInput.setStyleSheet("QLineEdit { padding: 10px; border: 1px solid #ccc; border-radius: 5px; }")
+        self.noteInput.setFixedHeight(40)
+        self.noteInput.setValidator(QtGui.QIntValidator(0, 100))  # Valider uniquement les nombres entre 0 et 100
+        form_layout.addWidget(self.noteInput)
+
+        main_layout.addLayout(form_layout)
 
         # Boutons
-        self.addButton = QPushButton('Ajouter')
-        self.updateButton = QPushButton('Modifier')
-        self.deleteButton = QPushButton('Supprimer')
-        self.loadButton = QPushButton('Charger')
+        button_layout = QHBoxLayout()
+        button_layout.setSpacing(10)
 
-        # Styles pour les boutons
-        buttons_style = """
-            QPushButton {
-                background-color: #007BFF; /* Couleur de fond */
-                color: white; /* Couleur du texte */
-                border: none; /* Pas de bordure */
-                padding: 10px 15px; /* Espacement */
-                border-radius: 5px; /* Coins arrondis */
-            }
-            QPushButton:hover {
-                background-color: #0056b3; /* Couleur au survol */
-            }
-        """
-        self.addButton.setStyleSheet(buttons_style)
-        self.updateButton.setStyleSheet(buttons_style)
-        self.deleteButton.setStyleSheet(buttons_style)
-        self.loadButton.setStyleSheet(buttons_style)
+        self.addButton = QPushButton('Ajouter')
+        self.addButton.setIcon(QIcon('icons/add.png'))  # Assurez-vous d'avoir les icônes appropriées
+        button_layout.addWidget(self.addButton)
+
+        self.updateButton = QPushButton('Modifier')
+        self.updateButton.setIcon(QIcon('icons/edit.png'))
+        button_layout.addWidget(self.updateButton)
+
+        self.deleteButton = QPushButton('Supprimer')
+        self.deleteButton.setIcon(QIcon('icons/delete.png'))
+        button_layout.addWidget(self.deleteButton)
+
+        self.loadButton = QPushButton('Charger')
+        self.loadButton.setIcon(QIcon('icons/load.png'))
+        button_layout.addWidget(self.loadButton)
+
+        main_layout.addLayout(button_layout)
 
         # Table pour afficher les notes
         self.table = QTableWidget()
-        self.table.setColumnCount(4)  # 4 colonnes pour ID, Nom, Prénom et Note
+        self.table.setColumnCount(4)  # ID, Nom, Prénom, Note
         self.table.setHorizontalHeaderLabels(['ID', 'Nom', 'Prénom', 'Note'])
         self.table.setColumnHidden(0, True)  # Masquer la colonne ID
-        # Ajout des widgets au layout
-        formLayout = QHBoxLayout()
-        formLayout.addWidget(self.nomInput)
-        formLayout.addWidget(self.prenomInput)
-        formLayout.addWidget(self.noteInput)
+        self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+        self.table.setAlternatingRowColors(True)
+        self.table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        self.table.verticalHeader().setVisible(False)
 
-        layout.addLayout(formLayout)
-        layout.addWidget(self.addButton)
-        layout.addWidget(self.updateButton)
-        layout.addWidget(self.deleteButton)
-        layout.addWidget(self.loadButton)
-        layout.addWidget(self.table)
+        main_layout.addWidget(self.table)
 
-        self.setLayout(layout)
+        self.setLayout(main_layout)
 
         # Connexion des boutons aux fonctions
         self.addButton.clicked.connect(self.ajouter)
@@ -88,65 +142,76 @@ class NoteApp(QWidget):
         self.chargerNote()
 
     def ajouter(self):
-        nom = self.nomInput.text()
-        prenom = self.prenomInput.text()
-        note = self.noteInput.text()
+        nom = self.nomInput.text().strip()
+        prenom = self.prenomInput.text().strip()
+        note = self.noteInput.text().strip()
 
         if nom and prenom and note:
-            self.db.ajouter(nom, prenom, note)
+            if not note.isdigit() or not (0 <= int(note) <= 100):
+                QMessageBox.warning(self, 'Erreur', 'Veuillez entrer une note valide entre 0 et 100.')
+                return
+
+            self.db.ajouter(nom, prenom, int(note))
             self.chargerNote()
             self.nomInput.clear()
             self.prenomInput.clear()
             self.noteInput.clear()
+            QMessageBox.information(self, 'Succès', 'Note ajoutée avec succès.')
         else:
-            QMessageBox.warning(self, 'Erreur', 'Tous les champs doivent être remplis')
+            QMessageBox.warning(self, 'Erreur', 'Tous les champs doivent être remplis.')
 
     def modifier(self):
-        selected_row = self.table.currentRow()  # Récupérer la ligne sélectionnée
+        selected_row = self.table.currentRow()
         if selected_row == -1:
             QMessageBox.warning(self, 'Erreur', 'Veuillez sélectionner une note à modifier.')
             return
 
-        # Récupérer l'ID de la note (note_id se trouve à la position 0 de la table)
         note_id = int(self.table.item(selected_row, 0).text())
+        nom = self.nomInput.text().strip()
+        prenom = self.prenomInput.text().strip()
+        note = self.noteInput.text().strip()
 
-        # Récupérer les nouvelles informations à partir des champs de saisie
-        nom = self.nomInput.text()
-        prenom = self.prenomInput.text()
-        note = self.noteInput.text()
+        if nom and prenom and note:
+            if not note.isdigit() or not (0 <= int(note) <= 100):
+                QMessageBox.warning(self, 'Erreur', 'Veuillez entrer une note valide entre 0 et 100.')
+                return
 
-        if nom and prenom and note.isdigit():
-            # Utiliser self.db.update_note avec les données obtenues
             self.db.modifier(note_id, nom, prenom, int(note))
             self.chargerNote()
             self.nomInput.clear()
             self.prenomInput.clear()
             self.noteInput.clear()
+            QMessageBox.information(self, 'Succès', 'Note modifiée avec succès.')
         else:
-            QMessageBox.warning(self, 'Erreur', 'Veuillez entrer des informations valides.')
-
-    def on_row_selected(self, row, column):
-        # Récupérer les informations de la ligne sélectionnée
-        nom = self.table.item(row, 1).text()
-        prenom = self.table.item(row, 2).text()
-        note = self.table.item(row, 3).text()
-
-        # Remplir les champs de saisie avec les informations de la ligne
-        self.nomInput.setText(nom)
-        self.prenomInput.setText(prenom)
-        self.noteInput.setText(note)
+            QMessageBox.warning(self, 'Erreur', 'Tous les champs doivent être remplis.')
 
     def supprimer(self):
         selected_row = self.table.currentRow()
         if selected_row >= 0:
             note_id = int(self.table.item(selected_row, 0).text())
-            self.db.supprimer(note_id)
-            self.chargerNote()
-            self.nomInput.clear()
-            self.prenomInput.clear()
-            self.noteInput.clear()
+            confirmation = QMessageBox.question(
+                self, 'Confirmer Suppression',
+                'Êtes-vous sûr de vouloir supprimer cette note ?',
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+            )
+            if confirmation == QMessageBox.StandardButton.Yes:
+                self.db.supprimer(note_id)
+                self.chargerNote()
+                self.nomInput.clear()
+                self.prenomInput.clear()
+                self.noteInput.clear()
+                QMessageBox.information(self, 'Succès', 'Note supprimée avec succès.')
         else:
             QMessageBox.warning(self, 'Erreur', 'Veuillez sélectionner une note à supprimer.')
+
+    def on_row_selected(self, row, column):
+        nom = self.table.item(row, 1).text()
+        prenom = self.table.item(row, 2).text()
+        note = self.table.item(row, 3).text()
+
+        self.nomInput.setText(nom)
+        self.prenomInput.setText(prenom)
+        self.noteInput.setText(note)
 
     def chargerNote(self):
         notes = self.db.AfficherLesNotes()
@@ -154,4 +219,11 @@ class NoteApp(QWidget):
 
         for row_index, row in enumerate(notes):
             for col_index, data in enumerate(row):
-                self.table.setItem(row_index, col_index, QTableWidgetItem(str(data)))
+                item = QTableWidgetItem(str(data))
+                if col_index == 0:
+                    item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+                self.table.setItem(row_index, col_index, item)
+
+        self.table.resizeRowsToContents()
+
+
