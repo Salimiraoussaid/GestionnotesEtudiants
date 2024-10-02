@@ -14,7 +14,7 @@ class NoteApp(QWidget):
 
     def initUI(self):
         self.setWindowTitle('Gestion des Notes des Étudiants')
-        self.setWindowIcon(QIcon('icons/app_icon.png')) 
+        self.setWindowIcon(QIcon('icons/app_icon.png'))  # Assurez-vous d'avoir une icône appropriée
 
         # Stylesheet global
         self.setStyleSheet("""
@@ -93,6 +93,16 @@ class NoteApp(QWidget):
         self.noteInput.setValidator(QtGui.QIntValidator(0, 100))  # Valider uniquement les nombres entre 0 et 100
         form_layout.addWidget(self.noteInput)
 
+        self.matiereInput = QLineEdit()
+        self.matiereInput.setPlaceholderText('Matiere')
+        self.matiereInput.setFixedHeight(40)
+        form_layout.addWidget(self.matiereInput)
+
+        self.classeInput = QLineEdit()
+        self.classeInput.setPlaceholderText('Classe')
+        self.classeInput.setFixedHeight(40)
+        form_layout.addWidget(self.classeInput)
+
         main_layout.addLayout(form_layout)
 
         # Boutons
@@ -119,8 +129,8 @@ class NoteApp(QWidget):
 
         # Table pour afficher les notes
         self.table = QTableWidget()
-        self.table.setColumnCount(4)  # ID, Nom, Prénom, Note
-        self.table.setHorizontalHeaderLabels(['ID', 'Nom', 'Prénom', 'Note'])
+        self.table.setColumnCount(6)  # ID, Nom, Prénom, Note , Matiere , Classe
+        self.table.setHorizontalHeaderLabels(['ID', 'Nom', 'Prénom', 'Note', 'Matiére', 'Classe'])
         self.table.setColumnHidden(0, True)  # Masquer la colonne ID
         self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self.table.setAlternatingRowColors(True)
@@ -145,17 +155,21 @@ class NoteApp(QWidget):
         nom = self.nomInput.text().strip()
         prenom = self.prenomInput.text().strip()
         note = self.noteInput.text().strip()
+        matiere = self.matiereInput.text().strip()
+        classe = self.classeInput.text().strip()
 
-        if nom and prenom and note:
+        if nom and prenom and note and matiere and classe:
             if not note.isdigit() or not (0 <= int(note) <= 100):
                 QMessageBox.warning(self, 'Erreur', 'Veuillez entrer une note valide entre 0 et 100.')
                 return
 
-            self.db.ajouter(nom, prenom, int(note))
+            self.db.ajouter(nom, prenom, int(note), matiere, classe)
             self.chargerNote()
             self.nomInput.clear()
             self.prenomInput.clear()
             self.noteInput.clear()
+            self.matiereInput.clear()
+            self.classeInput.clear()
             QMessageBox.information(self, 'Succès', 'Note ajoutée avec succès.')
         else:
             QMessageBox.warning(self, 'Erreur', 'Tous les champs doivent être remplis.')
@@ -170,8 +184,11 @@ class NoteApp(QWidget):
         nom = self.nomInput.text().strip()
         prenom = self.prenomInput.text().strip()
         note = self.noteInput.text().strip()
+        matiere = self.matiereInput.text().strip()
+        classe = self.classeInput.text().strip()
 
-        if nom and prenom and note:
+
+        if nom and prenom and note and matiere and classe:
             if not note.isdigit() or not (0 <= int(note) <= 100):
                 QMessageBox.warning(self, 'Erreur', 'Veuillez entrer une note valide entre 0 et 100.')
                 return
@@ -181,6 +198,8 @@ class NoteApp(QWidget):
             self.nomInput.clear()
             self.prenomInput.clear()
             self.noteInput.clear()
+            self.matiereInput.clear()
+            self.classeInput.clear()
             QMessageBox.information(self, 'Succès', 'Note modifiée avec succès.')
         else:
             QMessageBox.warning(self, 'Erreur', 'Tous les champs doivent être remplis.')
@@ -191,7 +210,7 @@ class NoteApp(QWidget):
             note_id = int(self.table.item(selected_row, 0).text())
             confirmation = QMessageBox.question(
                 self, 'Confirmer Suppression',
-                'Êtes-vous sûr de vouloir supprimer cette note ?',
+                'Êtes-vous sûr de vouloir supprimer cette note?',
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
             )
             if confirmation == QMessageBox.StandardButton.Yes:
@@ -200,6 +219,8 @@ class NoteApp(QWidget):
                 self.nomInput.clear()
                 self.prenomInput.clear()
                 self.noteInput.clear()
+                self.matiereInput.clear()
+                self.classeInput.clear()
                 QMessageBox.information(self, 'Succès', 'Note supprimée avec succès.')
         else:
             QMessageBox.warning(self, 'Erreur', 'Veuillez sélectionner une note à supprimer.')
@@ -208,10 +229,14 @@ class NoteApp(QWidget):
         nom = self.table.item(row, 1).text()
         prenom = self.table.item(row, 2).text()
         note = self.table.item(row, 3).text()
+        matiere = self.table.item(row, 4).text()
+        classe = self.table.item(row, 5).text()
 
         self.nomInput.setText(nom)
         self.prenomInput.setText(prenom)
         self.noteInput.setText(note)
+        self.matiereInput.setText(matiere)
+        self.classeInput.setText(classe)
 
     def chargerNote(self):
         notes = self.db.AfficherLesNotes()
@@ -225,5 +250,4 @@ class NoteApp(QWidget):
                 self.table.setItem(row_index, col_index, item)
 
         self.table.resizeRowsToContents()
-
 
