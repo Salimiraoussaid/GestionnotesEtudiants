@@ -1,7 +1,7 @@
 from PyQt6 import QtGui
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QPushButton, QLineEdit, QTableWidget,
-    QTableWidgetItem, QHBoxLayout, QMessageBox, QLabel, QHeaderView
+    QTableWidgetItem, QHBoxLayout, QMessageBox, QLabel, QHeaderView , QComboBox
 )
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QIcon, QFont
@@ -92,14 +92,19 @@ class NoteApp(QWidget):
         self.noteInput.setFixedHeight(40)
         self.noteInput.setValidator(QtGui.QIntValidator(0, 100))  # Valider uniquement les nombres entre 0 et 100
         form_layout.addWidget(self.noteInput)
-
-        self.matiereInput = QLineEdit()
-        self.matiereInput.setPlaceholderText('Matiere')
+        #
+        #self.combo_box = QComboBox()
+        #self.combo_box.addItems(["Option 1", "Option 2", "Option 3"])
+        #
+        self.matiereInput = QComboBox()
+        self.matiereInput.setPlaceholderText('Matiére')
+        self.matiereInput.addItems(["MATH", "PHYSIQUE", "SCIENCE"])
         self.matiereInput.setFixedHeight(40)
         form_layout.addWidget(self.matiereInput)
 
-        self.classeInput = QLineEdit()
+        self.classeInput = QComboBox()
         self.classeInput.setPlaceholderText('Classe')
+        self.classeInput.addItems(["1ere année", "2eme année", "3eme année", "4eme année", "5eme année" ])
         self.classeInput.setFixedHeight(40)
         form_layout.addWidget(self.classeInput)
 
@@ -155,8 +160,9 @@ class NoteApp(QWidget):
         nom = self.nomInput.text().strip()
         prenom = self.prenomInput.text().strip()
         note = self.noteInput.text().strip()
-        matiere = self.matiereInput.text().strip()
-        classe = self.classeInput.text().strip()
+        #matiere = self.matiereInput.text().strip()
+        matiere = self.matiereInput.currentText()
+        classe = self.classeInput.currentText()
 
         if nom and prenom and note and matiere and classe:
             if not note.isdigit() or not (0 <= int(note) <= 100):
@@ -168,8 +174,8 @@ class NoteApp(QWidget):
             self.nomInput.clear()
             self.prenomInput.clear()
             self.noteInput.clear()
-            self.matiereInput.clear()
-            self.classeInput.clear()
+            self.matiereInput.clearEditText()
+            self.classeInput.clearEditText()
             QMessageBox.information(self, 'Succès', 'Note ajoutée avec succès.')
         else:
             QMessageBox.warning(self, 'Erreur', 'Tous les champs doivent être remplis.')
@@ -184,8 +190,8 @@ class NoteApp(QWidget):
         nom = self.nomInput.text().strip()
         prenom = self.prenomInput.text().strip()
         note = self.noteInput.text().strip()
-        matiere = self.matiereInput.text().strip()
-        classe = self.classeInput.text().strip()
+        matiere = self.matiereInput.clearEditText()
+        classe = self.classeInput.clearEditText()
 
 
         if nom and prenom and note and matiere and classe:
@@ -193,13 +199,13 @@ class NoteApp(QWidget):
                 QMessageBox.warning(self, 'Erreur', 'Veuillez entrer une note valide entre 0 et 100.')
                 return
 
-            self.db.modifier(note_id, nom, prenom, int(note))
+            self.db.modifier(note_id, nom, prenom, int(note), matiere, classe)
             self.chargerNote()
             self.nomInput.clear()
             self.prenomInput.clear()
             self.noteInput.clear()
-            self.matiereInput.clear()
-            self.classeInput.clear()
+            self.matiereInput.clearEditText()
+            self.classeInput.currentText()
             QMessageBox.information(self, 'Succès', 'Note modifiée avec succès.')
         else:
             QMessageBox.warning(self, 'Erreur', 'Tous les champs doivent être remplis.')
@@ -219,8 +225,8 @@ class NoteApp(QWidget):
                 self.nomInput.clear()
                 self.prenomInput.clear()
                 self.noteInput.clear()
-                self.matiereInput.clear()
-                self.classeInput.clear()
+                #self.matiereInput.clear()
+                #self.classeInput.clear()
                 QMessageBox.information(self, 'Succès', 'Note supprimée avec succès.')
         else:
             QMessageBox.warning(self, 'Erreur', 'Veuillez sélectionner une note à supprimer.')
@@ -235,8 +241,8 @@ class NoteApp(QWidget):
         self.nomInput.setText(nom)
         self.prenomInput.setText(prenom)
         self.noteInput.setText(note)
-        self.matiereInput.setText(matiere)
-        self.classeInput.setText(classe)
+        self.matiereInput.currentText()
+        self.classeInput.currentText()
 
     def chargerNote(self):
         notes = self.db.AfficherLesNotes()
